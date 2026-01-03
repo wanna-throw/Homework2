@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Controller
-@Path("SignUp")
+@Path("/SignUp")
 public class SignUpFormController {    
     // CDI
     @Inject BindingResult bindingResult;

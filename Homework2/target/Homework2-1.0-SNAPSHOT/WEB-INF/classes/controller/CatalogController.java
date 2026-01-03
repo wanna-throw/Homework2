@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+
 @Path("/catalog")
 public class CatalogController {
 
@@ -27,13 +28,13 @@ public class CatalogController {
     private HttpServletRequest request;
 
     @GET
-    @View("index.jsp") // La vista principal amb el llistat
-    public void showCatalog(@QueryParam("capability") String capability, 
+    public String showCatalog(@QueryParam("capability") String capability,
                             @QueryParam("provider") String provider) {
-        
+
         // Aquí crides al servei (podries passar els filtres al servei)
         // Per simplicitat, portem tots i filtrem a la vista o implementa el filtratge al servei
         models.put("modelsList", catalogService.findAllModels());
+        return "catalog.jsp";
     }
 
     @GET
@@ -47,7 +48,7 @@ public class CatalogController {
 
         if (model == null) {
             // Si retorna null, probablement és privat i no estem loguejats o no tenim permís
-            return "redirect:/login"; // Redirigir al login
+            return "redirect:/mvc/login"; // Redirigir al login
         }
 
         models.put("selectedModel", model);
