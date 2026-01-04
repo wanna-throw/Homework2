@@ -91,10 +91,10 @@
         <form action="${mvc.uri('sign-up')}" method="POST">
             <input type="hidden" name="${mvc.csrf.name}" value="${mvc.csrf.token}"/>
             <div class="form-group">
-                <input type="text" name="firstName" value="${user.firstName}" class="form-control" placeholder="Nombre" required>
+                <input type="text" name="username" value="${user.username}" class="form-control" placeholder="Nombre" required>
             </div>
             <div class="form-group">
-                <input type="text" name="lastName" value="${user.lastName}" class="form-control" placeholder="Apellido" required>
+                <input type="password" name="password" value="${user.password}" class="form-control" placeholder="Contraseña" required>
             </div>
             <div class="form-group">
                 <input type="email" name="email" value="${user.email}" class="form-control" placeholder="Correo electrónico" required>

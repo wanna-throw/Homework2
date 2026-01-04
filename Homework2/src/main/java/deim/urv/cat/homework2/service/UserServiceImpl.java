@@ -2,38 +2,62 @@ package deim.urv.cat.homework2.service;
 
 import deim.urv.cat.homework2.model.User;
 import deim.urv.cat.homework2.controller.UserForm;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.client.Entity;
-        
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import java.util.List;
+
+@ApplicationScoped
 public class UserServiceImpl implements UserService {
-    private final WebTarget webTarget;
-    private final jakarta.ws.rs.client.Client client;
-    private static final String BASE_URI = "http://localhost:8080/UserService/rest/api";
-    
-    public UserServiceImpl() {
-        client = jakarta.ws.rs.client.ClientBuilder.newClient();
-        webTarget = client.target(BASE_URI).path("user");
-    }
-    
-    @Override
-    public User findUserByEmail(String email){
-        Response response = webTarget.path(email)
-                .request(MediaType.APPLICATION_JSON)
-                .get();
-        if (response.getStatus() == 200) {
-            return response.readEntity(User.class);
+
+    @PersistenceContext(unitName = "Homework2PU") // Asegúrate que coincide con tu persistence.xml
+    private EntityManager em;
+
+    // Método necesario para el LoginController
+    public User findUserByUsername(String username) {
+        try {
+            List<User> users = em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+                    .setParameter("username", username)
+                    .getResultList();
+            return users.isEmpty() ? null : users.get(0);
+        } catch (Exception e) {
+            return null;
         }
-        return null;
     }
 
     @Override
-    public boolean addUser(UserForm user) {
-       Response response = webTarget.request(MediaType.APPLICATION_JSON)
-               .post(Entity.entity(user, MediaType.APPLICATION_JSON), 
-                    Response.class);
-     return response.getStatus() == 201;
+    public User findUserByEmail(String email) {
+        try {
+            List<User> users = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                    .setParameter("email", email)
+                    .getResultList();
+            return users.isEmpty() ? null : users.get(0);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
+    @Override
+    @Transactional
+    public boolean addUser(UserForm userForm) {
+        // Verificar si ya existe
+        if (findUserByEmail(userForm.getEmail()) != null) {
+            return false;
+        }
+        
+        // Mapear UserForm a Entity User
+        User user = new User();
+        user.setEmail(userForm.getEmail());
+        user.setUsername(userForm.getUsername());
+        user.setPassword(userForm.getPassword());
+
+        try {
+            em.persist(user);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -8,32 +8,35 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Path("Logout")
+@Path("/logout") // URL será: /mvc/logout
 @Controller
 public class LogoutController {
-    @Inject Logger log;
+    
+    @Inject 
+    Logger log;
    
     @Context
     private HttpServletRequest request;
     
     @GET
-    public String invalidate() {
-        // Invalidate HTTP Session
-        HttpSession session = request.getSession();
+    public String logout() {
+        // Obtener la sesión actual, false para no crear una si no existe
+        HttpSession session = request.getSession(false);
         
-        Enumeration<String> attributes = request.getSession().getAttributeNames();
-        while (attributes.hasMoreElements()) {
-            String key = attributes.nextElement();
-            Object obj  = session.getAttribute(key);
-            log.log(Level.INFO, "Session attribute {0}:{1}", 
-                    new Object [] { key, obj });
+        if (session != null) {
+            // (Opcional) Loguear quién se desconecta para depuración
+            String user = (String) session.getAttribute("username");
+            log.log(Level.INFO, "Cerrando sesión para el usuario: {0}", user);
+            
+            // Destruir la sesión y borrar todos los datos (auth, usuario, carrito, etc.)
+            session.invalidate();
         }
-        session.invalidate();
-        return "redirect:/SignUp"; 
+        
+        // Redirigir al catálogo. Al no haber sesión, el controlador del catálogo
+        // cargará solo los modelos públicos.
+        return "redirect:/catalog"; 
     }    
-    
 }
