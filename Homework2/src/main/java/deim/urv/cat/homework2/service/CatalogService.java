@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.List;
+import jakarta.ws.rs.core.GenericType;
 
 @ApplicationScoped
 public class CatalogService {
@@ -18,14 +19,32 @@ public class CatalogService {
     private static final String API_URL = "http://localhost:8080/Homework1/rest/api/v1/models";
     
     public List<ModelDTO> findAllModels() {
-        Client client = ClientBuilder.newClient();
+        /*Client client = ClientBuilder.newClient();
         WebTarget target = client.target(API_URL);
         
         // Pots afegir query params aquí per als filtres si cal:
         // target = target.queryParam("capability", "chat-completion");
         
         return target.request(MediaType.APPLICATION_JSON)
-                     .get(new GenericType<List<ModelDTO>>() {});
+                     .get(new GenericType<List<ModelDTO>>() {});*/
+        Client client = ClientBuilder.newClient();
+        List<ModelDTO> lista = client.target(API_URL)
+                .request(MediaType.APPLICATION_JSON)
+                .get(new GenericType<List<ModelDTO>>() {});
+        client.close();
+        System.out.println("Enviando lista");
+        /*for (ModelDTO model : lista) {
+            System.out.println("Model ID: " + model.getId());
+            System.out.println("Name: " + model.getName());
+            System.out.println("Provider: " + model.getProvider());
+            System.out.println("Logo URL: " + model.getLogoUrl());
+            System.out.println("Description: " + model.getDescription());
+            System.out.println("Version: " + model.getVersion());
+            System.out.println("Release Date: " + model.getReleaseDate());
+            System.out.println("Is Private: " + model.isIsPrivate());
+            System.out.println("---");
+        }*/
+        return lista;
     }
 
     public ModelDTO findModelById(Long id, String username, String password) {
